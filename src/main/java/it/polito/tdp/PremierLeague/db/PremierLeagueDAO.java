@@ -9,6 +9,7 @@ import java.util.List;
 import it.polito.tdp.PremierLeague.model.Action;
 import it.polito.tdp.PremierLeague.model.Match;
 import it.polito.tdp.PremierLeague.model.Player;
+import it.polito.tdp.PremierLeague.model.PlayersTeam;
 import it.polito.tdp.PremierLeague.model.Team;
 
 public class PremierLeagueDAO {
@@ -102,6 +103,85 @@ public class PremierLeagueDAO {
 				result.add(match);
 
 			}
+			conn.close();
+			return result;
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public List<Player> getPlayersFromMatch(int matchId){
+		String sql="SELECT p.PlayerID, p.Name "
+				+ "FROM actions a, players p "
+				+ "WHERE a.PlayerID=p.PlayerID "
+				+ "and a.MatchID=? ";
+		List<Player> result = new ArrayList<>();;
+		
+		Connection conn = DBConnect.getConnection();
+
+		try {
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setInt(1, matchId);
+			ResultSet res = st.executeQuery();
+			while (res.next()) {
+				Player player=new Player(res.getInt("p.PlayerID"), res.getString("p.Name"));
+				result.add(player);
+			}
+			conn.close();
+			return result;
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public List<Double> getValueForEfficiency(int playerId, int matchId){
+		String sql="SELECT a.TotalSuccessfulPassesAll, a.Assists, a.TimePlayed "
+				+ "FROM actions a "
+				+ "WHERE a.PlayerID=? "
+				+ "and a.MatchID=? ";
+		List<Double> result = new ArrayList<>();;
+		
+		Connection conn = DBConnect.getConnection();
+
+		try {
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setInt(1, playerId);
+			st.setInt(2, matchId);
+			ResultSet res = st.executeQuery();
+			while (res.next()) {
+				result.add(res.getDouble("a.TotalSuccessfulPassesAll"));
+				result.add(res.getDouble("a.Assists"));
+				result.add(res.getDouble("a.TimePlayed"));
+			}
+			conn.close();
+			return result;
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public PlayersTeam getPlayersTeam(int playerId){
+		String sql="SELECT a.PlayerID, a.TeamID "
+				+ "FROM actions a "
+				+ "WHERE a.PlayerID=? "
+				+ "GROUP BY a.PlayerID ";
+		PlayersTeam result = null;
+		
+		Connection conn = DBConnect.getConnection();
+
+		try {
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setInt(1, playerId);
+			ResultSet res = st.executeQuery();
+			res.first(); 
+				result = new PlayersTeam(res.getInt("a.PlayerID"), res.getInt("a.TeamID"));
+			
 			conn.close();
 			return result;
 			
