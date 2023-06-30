@@ -138,12 +138,12 @@ public class PremierLeagueDAO {
 		}
 	}
 	
-	public List<Double> getValueForEfficiency(int playerId, int matchId){
-		String sql="SELECT a.TotalSuccessfulPassesAll, a.Assists, a.TimePlayed "
+	public Double getValueForEfficiency(int playerId, int matchId){
+		String sql="SELECT ((a.TotalSuccessfulPassesAll + a.Assists)/ a.TimePlayed) AS eff "
 				+ "FROM actions a "
 				+ "WHERE a.PlayerID=? "
 				+ "and a.MatchID=? ";
-		List<Double> result = new ArrayList<>();;
+		Double result = 0.0;
 		
 		Connection conn = DBConnect.getConnection();
 
@@ -152,11 +152,8 @@ public class PremierLeagueDAO {
 			st.setInt(1, playerId);
 			st.setInt(2, matchId);
 			ResultSet res = st.executeQuery();
-			while (res.next()) {
-				result.add(res.getDouble("a.TotalSuccessfulPassesAll"));
-				result.add(res.getDouble("a.Assists"));
-				result.add(res.getDouble("a.TimePlayed"));
-			}
+			res.first();
+			result=res.getDouble("eff");
 			conn.close();
 			return result;
 			

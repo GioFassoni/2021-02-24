@@ -16,7 +16,6 @@ public class Model {
 	
 	public Model() {
 		this.dao=new PremierLeagueDAO();
-		this.grafo=new SimpleDirectedWeightedGraph<Player, DefaultWeightedEdge>(DefaultWeightedEdge.class);
 	}
 	
 	public List<Match> getMatches() {
@@ -26,6 +25,7 @@ public class Model {
 	}
 	
 	public void creaGrafo(Match m) {
+		this.grafo=new SimpleDirectedWeightedGraph<Player, DefaultWeightedEdge>(DefaultWeightedEdge.class);
 		Graphs.addAllVertices(grafo, this.dao.getPlayersFromMatch(m.getMatchID()));
 		
 		for(Player p1:this.grafo.vertexSet()) {
@@ -52,11 +52,7 @@ public class Model {
 	}
 	
 	public Double getEfficiency(Player p, Match m) {
-		double passes = this.dao.getValueForEfficiency(p.getPlayerID(), m.getMatchID()).get(0);
-		double assist = this.dao.getValueForEfficiency(p.getPlayerID(), m.getMatchID()).get(1);
-		double time = this.dao.getValueForEfficiency(p.getPlayerID(), m.getMatchID()).get(2);
-		double eff=(passes+assist)/time;
-		return eff;
+		return this.dao.getValueForEfficiency(p.getPlayerID(), m.matchID);
 	}
 	
 	public Integer numVertici() {
@@ -89,4 +85,6 @@ public class Model {
 		}
 		return best;
 	}
+	
+	
 }
